@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Visualize</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080f18;
+      --panel: #0f1b29;
+      --panel-2: #142236;
+      --text: #e8eef7;
+      --muted: #93a4b8;
+      --line: #223248;
+      --accent: #54d6df;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 15, 24, 0.96);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 180px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .mark {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid rgba(84, 214, 223, 0.38);
+      border-radius: 8px;
+      background: rgba(84, 214, 223, 0.13);
+      color: var(--accent);
+      font-size: 13px;
+    }
+
+    .controls {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    select,
+    button {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+    }
+
+    select {
+      width: min(260px, 38vw);
+      padding: 0 12px;
+    }
+
+    button {
+      min-width: 82px;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    button.active {
+      border-color: rgba(84, 214, 223, 0.58);
+      background: rgba(84, 214, 223, 0.15);
+      color: #dffcff;
+    }
+
+    .open-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .stage {
+      min-height: calc(100vh - 67px);
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .frame-wrap {
+      width: var(--preview-width, 100%);
+      max-width: 100%;
+      height: calc(100vh - 116px);
+      min-height: 640px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-2);
+      overflow: hidden;
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.34);
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
+    }
+
+    @media (max-width: 760px) {
+      .bar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .controls {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      select {
+        width: 190px;
+        flex: 0 0 auto;
+      }
+
+      button {
+        flex: 0 0 auto;
+      }
+
+      .stage {
+        padding: 12px;
+      }
+
+      .frame-wrap {
+        height: calc(100vh - 172px);
+        min-height: 560px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">
+      <span class="mark">DS</span>
+      <span>Portfolio Visualize</span>
+    </div>
+
+    <div class="controls">
+      <select id="pageSelect" aria-label="Select page">
+        <option value="index.html">Home</option>
+        <option value="projects.html">Projects</option>
+        <option value="case-study-churn.html">Churn v1 Case</option>
+        <option value="case-study-churn-v2.html">Churn v2 Case</option>
+        <option value="case-study-bank-churn.html">Bank Churn Case</option>
+        <option value="case-study-freight.html">Shipment Case</option>
+        <option value="about.html">About</option>
+        <option value="contact.html">Contact</option>
+      </select>
+      <button type="button" data-width="100%" class="active">Desktop</button>
+      <button type="button" data-width="820px">Tablet</button>
+      <button type="button" data-width="390px">Mobile</button>
+    </div>
+
+    <a id="openLink" class="open-link" href="index.html" target="_blank" rel="noreferrer">Open page</a>
+  </header>
+
+  <main class="stage">
+    <div class="frame-wrap" id="frameWrap">
+      <iframe id="preview" src="index.html" title="Portfolio preview"></iframe>
+    </div>
+  </main>
+
+  <script>
+    const pageSelect = document.getElementById("pageSelect");
+    const preview = document.getElementById("preview");
+    const openLink = document.getElementById("openLink");
+    const frameWrap = document.getElementById("frameWrap");
+    const buttons = [...document.querySelectorAll("button[data-width]")];
+
+    pageSelect.addEventListener("change", () => {
+      preview.src = pageSelect.value;
+      openLink.href = pageSelect.value;
+    });
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        frameWrap.style.setProperty("--preview-width", button.dataset.width);
+      });
+    });
+  </script>
+</body>
+</html>

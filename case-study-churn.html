@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VNPost churn prediction system case study.">
+  <title>VNPost Churn Prediction Case Study | Pham Hai Dang</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="header"><div class="container navbar"><a class="brand" href="index.html"><span class="logo">DS</span><span>Pham Hai Dang<small>Data Scientist</small></span></a><button class="nav-toggle" data-nav-toggle aria-expanded="false">Menu</button><nav class="nav" data-nav><a href="index.html">Home</a><a href="projects.html">Projects</a><a class="active" href="case-study-churn.html">Churn v1</a><a href="case-study-churn-v2.html">Churn v2</a><a href="case-study-bank-churn.html">Bank Churn</a><a href="case-study-freight.html">Shipment</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav></div></header>
+
+<main>
+  <section class="container case-hero reveal">
+    <div class="breadcrumbs"><a href="projects.html">Projects</a><span>/</span><span>VNPost Churn Prediction System</span></div>
+    <p class="kicker">Case Study 01</p>
+    <h1><span class="gradient-text">VNPost Churn</span> Prediction System</h1>
+    <p class="hero-text">Version 1 is the Docker Compose and Airflow implementation of the churn system: ZIP ingestion, PostgreSQL feature generation, XGBoost training, monthly scoring, risk-list export, and model-quality monitoring.</p>
+    <div class="hero-actions"><a class="btn btn-primary" href="https://github.com/dangssss/Churn_Prediction_ver_1" target="_blank" rel="noreferrer">GitHub</a><a class="btn btn-ghost" href="case-study-churn-v2.html">Open v2 Case</a></div>
+  </section>
+
+  <section class="container section case-layout">
+    <aside class="card side-panel reveal">
+      <h3>Project Snapshot</h3>
+      <div class="kpi-list" style="margin-top:16px">
+        <div class="kpi"><span>Orchestrator</span><b>Airflow DAGs</b></div>
+        <div class="kpi"><span>Runtime</span><b>Docker Compose</b></div>
+        <div class="kpi"><span>Database</span><b>PostgreSQL</b></div>
+        <div class="kpi"><span>Model</span><b>XGBoost</b></div>
+        <div class="kpi"><span>Risk cut</span><b>Top 5%</b></div>
+        <div class="kpi"><span>Feature opt.</span><b>82% faster</b></div>
+      </div>
+      <div class="tag-row"><span class="tag">ZIP ingest</span><span class="tag">COPY</span><span class="tag">Sliding windows</span><span class="tag">SHAP</span><span class="tag">PSI / KS</span></div>
+    </aside>
+
+    <div class="case-body">
+      <article class="card reveal">
+        <h2>1. System Goal</h2>
+        <p>The system turns monthly VNPost customer and transaction data into an operational churn risk list. The output is designed for customer-care action: who is risky, how risky they are, and which behavioral signals explain the score.</p>
+        <ul>
+          <li>Score active customers on a 2-month churn horizon.</li>
+          <li>Export high-risk customers into PostgreSQL and CSV-compatible tables.</li>
+          <li>Attach reason signals from SHAP where possible, with rule-based fallback when explanation artifacts are unavailable.</li>
+        </ul>
+      </article>
+
+      <article class="card reveal">
+        <h2>2. Airflow Chain</h2>
+        <div class="pipeline">
+          <div class="pipeline-step"><span>01</span><b>Ingest</b><small>Saturday 05:00 ZIP scan and load job.</small></div>
+          <div class="pipeline-step"><span>02</span><b>Validate</b><small>Run ingest validation before downstream trigger.</small></div>
+          <div class="pipeline-step"><span>03</span><b>Features</b><small>Build lifetime and sliding-window feature tables.</small></div>
+          <div class="pipeline-step"><span>04</span><b>Model</b><small>Run monthly XGBoost pipeline with horizon 2.</small></div>
+          <div class="pipeline-step"><span>05</span><b>Monitor</b><small>Write run logs, score drift, PSI/KS and backtests.</small></div>
+        </div>
+        <p style="margin-top:16px">The real DAG chain is <code>ds_churn_ingest</code> -> <code>ds_churn_features</code> -> <code>ds_churn_model_monthly</code>. The model DAG runs <code>python modeling/main.py run-monthly --horizon 2 --risk-threshold-pct 95</code>.</p>
+      </article>
+
+      <article class="card reveal">
+        <h2>3. ZIP Ingestion Design</h2>
+        <p>The ingestion job is built around controlled full-refresh loads instead of ad hoc file appends. The goal is to make repeated monthly uploads auditable and recoverable.</p>
+        <div class="two-col">
+          <div>
+            <h3>Data controls</h3>
+            <ul><li>Unzip and discover source CSV files.</li><li>Validate expected headers and table schema.</li><li>Use PostgreSQL production schema after transformation.</li><li>Track successful loads in <code>ingest.ingest_log</code>.</li></ul>
+          </div>
+          <div>
+            <h3>Failure handling</h3>
+            <ul><li>Copy failed ZIP files to failed-data storage.</li><li>Preserve original input rather than deleting it.</li><li>Return structured status with rows, skip reason, success, and error.</li><li>Run post-ingest maintenance and analysis without failing the whole job.</li></ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="card reveal">
+        <h2>4. Feature Generation</h2>
+        <p>The feature layer creates static lifetime metrics and dynamic K-month behavior windows in PostgreSQL. The major engineering improvement in v1 is the smart recomputation strategy for sliding windows.</p>
+        <div class="stat-grid" style="margin-top:18px">
+          <div class="stat"><span>Before</span><b>540+</b><em>table computations</em></div>
+          <div class="stat"><span>After</span><b>18-20</b><em>latest windows</em></div>
+          <div class="stat"><span>Time</span><b>45 -> 8m</b><em>benchmark note</em></div>
+          <div class="stat"><span>Reduction</span><b>96%</b><em>less redundant work</em></div>
+        </div>
+        <ul>
+          <li>Existing stable windows are kept; only new and latest incomplete windows are recomputed.</li>
+          <li>Window table names are generated dynamically from month ranges and K values.</li>
+          <li>Checkpoint and batch-insert logic reduce restart cost for long SQL feature jobs.</li>
+        </ul>
+      </article>
+
+      <article class="card reveal">
+        <h2>5. Monthly Modeling Pipeline</h2>
+        <p>The monthly pipeline sweeps candidate lookback windows, compares a new candidate against the previous accepted model, retrains only when the candidate passes acceptance logic, and always scores active customers with the best available bundle.</p>
+        <table class="mock-table">
+          <tr><th>Step</th><th>Implementation detail</th><th>Portfolio meaning</th></tr>
+          <tr><td>Sweep K</td><td>Find best window candidate</td><td>Model selection is part of the pipeline</td></tr>
+          <tr><td>Accept / reject</td><td>Compare candidate F1 against accepted bundle</td><td>Prevents weak replacement models</td></tr>
+          <tr><td>Score</td><td>Export risk mode with threshold percentile</td><td>Produces retention-ready customer list</td></tr>
+          <tr><td>Backtest</td><td>Precision-in-list monitoring</td><td>Checks whether high-risk list remains useful</td></tr>
+        </table>
+      </article>
+
+      <article class="card reveal">
+        <h2>6. Monitoring Tables</h2>
+        <p>V1 already includes a production-monitoring layer in PostgreSQL, focused on model output quality rather than UI dashboards.</p>
+        <ul>
+          <li><code>ml_monitor.run_log</code> records each monthly run status, accepted flag, and notes.</li>
+          <li><code>score_drift</code> stores active count, risk count, score quantiles, and risk-ratio anomalies.</li>
+          <li><code>feature_drift</code> computes PSI and discrete KS by feature against the training profile.</li>
+          <li><code>backtest</code> checks precision-in-list when future label windows become available.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container"><span>&copy; <span data-year></span> Pham Hai Dang</span><a href="contact.html">Contact</a></div></footer>
+<script src="script.js"></script>
+</body>
+</html>

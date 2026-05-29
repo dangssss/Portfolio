@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LaoVietBank churn classification demo case study.">
+  <title>Banking Churn Demo Case Study | Pham Hai Dang</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="header"><div class="container navbar"><a class="brand" href="index.html"><span class="logo">DS</span><span>Pham Hai Dang<small>Data Scientist</small></span></a><button class="nav-toggle" data-nav-toggle aria-expanded="false">Menu</button><nav class="nav" data-nav><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="case-study-churn.html">Churn v1</a><a href="case-study-churn-v2.html">Churn v2</a><a class="active" href="case-study-bank-churn.html">Bank Churn</a><a href="case-study-freight.html">Shipment</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav></div></header>
+
+<main>
+  <section class="container case-hero reveal">
+    <div class="breadcrumbs"><a href="projects.html">Projects</a><span>/</span><span>LaoVietBank Churn Demo</span></div>
+    <p class="kicker">Case Study 03</p>
+    <h1><span class="gradient-text">Banking churn</span> demo with SHAP and MAPIE.</h1>
+    <p class="hero-text">FoxAI internship demo using a 10,000-customer banking dataset. The work covers feature ratios, imbalanced churn classification, model comparison, SHAP explanations, and MAPIE prediction confidence.</p>
+    <div class="hero-actions"><a class="btn btn-primary" href="https://github.com/dangssss/LaoVietBank_Churn_Clf_Demo" target="_blank" rel="noreferrer">GitHub</a><a class="btn btn-ghost" href="projects.html">Back to Projects</a></div>
+  </section>
+
+  <section class="container section case-layout">
+    <aside class="card side-panel reveal">
+      <h3>Project Snapshot</h3>
+      <div class="kpi-list" style="margin-top:16px">
+        <div class="kpi"><span>Company</span><b>FoxAI.JSC</b></div>
+        <div class="kpi"><span>Dataset</span><b>10,000 rows</b></div>
+        <div class="kpi"><span>Target</span><b>Exited</b></div>
+        <div class="kpi"><span>Best model</span><b>LightGBM</b></div>
+        <div class="kpi"><span>Accuracy</span><b>0.9295</b></div>
+        <div class="kpi"><span>Churn F1</span><b>0.8142</b></div>
+      </div>
+      <div class="tag-row"><span class="tag">LightGBM</span><span class="tag">XGBoost</span><span class="tag">Random Forest</span><span class="tag">SHAP</span><span class="tag">MAPIE</span></div>
+    </aside>
+
+    <div class="case-body">
+      <article class="card reveal">
+        <h2>1. Business Goal</h2>
+        <p>The demo predicts which customers are likely to leave so a retention team can prioritize outreach. The important output is not only a churn label, but also why the customer is risky and whether the prediction is confident enough for action.</p>
+        <ul>
+          <li>Use churn probability to rank customers for retention action.</li>
+          <li>Explain risk drivers with customer-level SHAP values.</li>
+          <li>Use MAPIE to separate clear predictions from ambiguous cases.</li>
+        </ul>
+      </article>
+
+      <article class="card reveal">
+        <h2>2. Data and Split</h2>
+        <div class="two-col">
+          <div>
+            <h3>Raw fields</h3>
+            <ul><li>CreditScore, Gender, Age, Tenure</li><li>Balance, NumOfProducts, HasCrCard</li><li>IsActiveMember, EstimatedSalary</li><li>LoginFrequency, ExternalTransfers</li></ul>
+          </div>
+          <div>
+            <h3>Validation setup</h3>
+            <ul><li>70% training set</li><li>10% calibration set for MAPIE</li><li>20% held-out test set</li><li>No missing values in the exported notebook run</li></ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="card reveal">
+        <h2>3. Feature Engineering</h2>
+        <p>The notebook adds ratio features to capture usage intensity instead of relying only on raw customer profile columns.</p>
+        <div class="chart-card" style="margin-top:18px">
+          <div class="chart-head"><strong>Mutual Information Signals</strong><span>train-set relevance</span></div>
+          <div class="bar-row"><span>ExternalTransfers</span><div class="bar"><i style="--w:100%"></i></div><b>0.202</b></div>
+          <div class="bar-row"><span>TransferLoginRatio</span><div class="bar"><i style="--w:70%"></i></div><b>0.140</b></div>
+          <div class="bar-row"><span>NumOfProducts</span><div class="bar"><i style="--w:35%"></i></div><b>0.070</b></div>
+          <div class="bar-row"><span>Age</span><div class="bar"><i style="--w:34%"></i></div><b>0.068</b></div>
+        </div>
+        <ul>
+          <li>Engineered <code>BalancePerProduct</code>, <code>ActivityPerTenure</code>, <code>SalaryPerAge</code>, and <code>TransferLoginRatio</code>.</li>
+          <li>Clipped outliers with IQR-style rules before model training.</li>
+          <li>Selected churn-relevant behavioral features from mutual information and model diagnostics.</li>
+        </ul>
+      </article>
+
+      <article class="card reveal">
+        <h2>4. Model Comparison</h2>
+        <p>Three tree-based classifiers were benchmarked on the same held-out test set. LightGBM had the best overall accuracy and best churn-class F1 in the notebook output.</p>
+        <table class="mock-table">
+          <tr><th>Model</th><th>Accuracy</th><th>Churn recall</th><th>Churn F1</th></tr>
+          <tr><td>Random Forest</td><td>0.9225</td><td>0.6978</td><td>0.7856</td></tr>
+          <tr><td>XGBoost</td><td>0.9230</td><td>0.7469</td><td>0.7979</td></tr>
+          <tr><td>LightGBM</td><td><span class="score low">0.9295</span></td><td>0.7592</td><td>0.8142</td></tr>
+        </table>
+      </article>
+
+      <article class="card reveal">
+        <h2>5. Explanation Layer</h2>
+        <p>SHAP turns the classifier into a business-facing explanation workflow. Global plots identify major churn drivers, while local waterfall plots explain why one customer is high risk.</p>
+        <ul>
+          <li><code>ExternalTransfers</code> is the strongest signal in the feature relevance output.</li>
+          <li>Ratio features help explain whether a customer is active relative to tenure and product ownership.</li>
+          <li>Customer-level explanations make the risk score actionable for retention discussions.</li>
+        </ul>
+      </article>
+
+      <article class="card reveal">
+        <h2>6. MAPIE Confidence Layer</h2>
+        <p>MAPIE is fitted with the selected LightGBM model using a calibration set and <code>alpha = 0.05</code>. The output is a conformal prediction set rather than only one hard label.</p>
+        <table class="mock-table">
+          <tr><th>Prediction set</th><th>Meaning</th><th>Business action</th></tr>
+          <tr><td><span class="score low">Single class</span></td><td>Clear prediction</td><td>Use churn / non-churn decision</td></tr>
+          <tr><td><span class="score mid">Both classes</span></td><td>Ambiguous customer</td><td>Review before action</td></tr>
+          <tr><td><span class="score high">Coverage miss</span></td><td>Confidence target is not met</td><td>Recalibrate or retrain</td></tr>
+        </table>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div class="container"><span>&copy; <span data-year></span> Pham Hai Dang</span><a href="contact.html">Contact</a></div></footer><script src="script.js"></script>
+</body>
+</html>

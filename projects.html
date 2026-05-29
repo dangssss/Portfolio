@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Detailed data science projects by Pham Hai Dang.">
+  <title>Projects | Pham Hai Dang</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="header">
+  <div class="container navbar">
+    <a class="brand" href="index.html"><span class="logo">DS</span><span>Pham Hai Dang<small>Data Scientist</small></span></a>
+    <button class="nav-toggle" data-nav-toggle aria-expanded="false">Menu</button>
+    <nav class="nav" data-nav>
+      <a href="index.html">Home</a>
+      <a class="active" href="projects.html">Projects</a>
+      <a href="case-study-churn.html">Churn v1</a><a href="case-study-churn-v2.html">Churn v2</a><a href="case-study-bank-churn.html">Bank Churn</a><a href="case-study-freight.html">Shipment</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="container case-hero reveal">
+    <p class="kicker">Project Portfolio</p>
+    <h1><span class="gradient-text">Applied ML systems</span> across churn and supply chain prediction.</h1>
+    <p class="hero-text">Four real project tracks covering production-style churn pipelines, Kubernetes orchestration, banking churn modeling, and shipment type prediction for medical supply chain logistics.</p>
+  </section>
+
+  <section class="container section">
+    <div class="grid-2">
+      <article class="card project-card reveal">
+        <div class="project-visual">
+          <div class="pipeline">
+            <div class="pipeline-step"><span>01</span><b>Ingest</b><small>ZIP sources, schema checks, manifest tracking</small></div>
+            <div class="pipeline-step"><span>02</span><b>Feature</b><small>Static lifetime and sliding-window SQL features</small></div>
+            <div class="pipeline-step"><span>03</span><b>Train</b><small>XGBoost selection by F1 and PR-AUC</small></div>
+            <div class="pipeline-step"><span>04</span><b>Score</b><small>Monthly active-customer churn risk export</small></div>
+            <div class="pipeline-step"><span>05</span><b>Monitor</b><small>Run audit, PSI, KS, risk-ratio anomalies</small></div>
+          </div>
+        </div>
+        <div class="project-copy">
+          <h3>01 &middot; VNPost Churn Prediction System</h3>
+          <p>End-to-end churn prediction system orchestrated with Airflow DAGs, deployed through Docker Compose with PostgreSQL as the analytical store.</p>
+          <ul>
+            <li><strong>Data pipeline:</strong> ZIP ingestion for four source tables with header/schema validation, SHA256 manifest tracking, full-refresh reloads, chunked Pandas processing, PostgreSQL COPY, and failed-file isolation.</li>
+            <li><strong>Feature engineering:</strong> Static lifetime features and configurable K-month sliding-window behavior features in PostgreSQL, with checkpoint/resume and optimized recomputation for new windows.</li>
+            <li><strong>Modeling output:</strong> XGBoost churn model promotion, monthly scoring, high-risk customer export, SHAP churn reasons, and rule-based fallback explanations.</li>
+          </ul>
+          <div class="tag-row"><span class="tag">Airflow</span><span class="tag">Docker Compose</span><span class="tag">PostgreSQL</span><span class="tag">XGBoost</span><span class="tag">SHAP</span></div>
+          <div class="project-actions">
+            <a class="btn btn-primary" href="case-study-churn.html">Case Study</a>
+            <a class="btn btn-ghost" href="https://github.com/dangssss/Churn_Prediction_ver_1" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card project-card reveal">
+        <div class="project-visual">
+          <div class="stat-grid">
+            <div class="stat"><span>DAGs</span><b>5</b><em>Airflow</em></div>
+            <div class="stat"><span>Lookback</span><b>1-6M</b><em>SQL windows</em></div>
+            <div class="stat"><span>Gate</span><b>F0.5</b><em>PR-AUC</em></div>
+            <div class="stat"><span>Deploy</span><b>kind</b><em>Helm</em></div>
+          </div>
+        </div>
+        <div class="project-copy">
+          <h3>02 &middot; Customer Churn Prediction ver 2</h3>
+          <p>Developing a Kubernetes-based second version of the VNPost churn system, with isolated Airflow tasks running in pods through KubernetesPodOperator.</p>
+          <ul>
+            <li><strong>Orchestration:</strong> Five Airflow DAGs across ingest, features, EDA, train, and score, deployed on a local kind cluster with Helm.</li>
+            <li><strong>Dataset logic:</strong> Scope filtering, recency-based activity tiering, walk-forward window selection, EWMA trend computation, pseudo-labeling, label smoothing, and train-only StandardScaler fitting.</li>
+            <li><strong>Operations:</strong> Guardrail-based model promotion, PSI/KS drift checks, backtest precision-in-list, Prometheus/Grafana monitoring, and custom PromQL alerts for XGBoost pods and Airflow scheduler health.</li>
+          </ul>
+          <div class="tag-row"><span class="tag">Kubernetes</span><span class="tag">Helm</span><span class="tag">Airflow</span><span class="tag">Prometheus</span><span class="tag">Grafana</span></div>
+          <div class="project-actions">
+            <a class="btn btn-primary" href="case-study-churn-v2.html">Case Study</a>
+            <a class="btn btn-ghost" href="https://github.com/dangssss/Churn_Prediction_ver_2" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card project-card reveal">
+        <div class="project-visual">
+          <div class="chart-card">
+            <div class="chart-head"><strong>Banking Churn Model Readout</strong><span>demo pipeline</span></div>
+            <div class="bar-row"><span>Best accuracy</span><div class="bar"><i style="--w:93%"></i></div><b>0.9295</b></div>
+            <div class="bar-row"><span>Churn F1</span><div class="bar"><i style="--w:81%"></i></div><b>0.8142</b></div>
+            <div class="bar-row"><span>Best model</span><div class="bar"><i style="--w:88%"></i></div><b>LGBM</b></div>
+            <div class="bar-row"><span>Confidence</span><div class="bar"><i style="--w:95%"></i></div><b>95%</b></div>
+          </div>
+        </div>
+        <div class="project-copy">
+          <h3>03 &middot; Banking Churn Demo Pipeline</h3>
+          <p>Internship project at FoxAI.JSC building a banking churn demo on 10,000 customer records, focused on model comparison, business-facing explanations, and calibrated confidence.</p>
+          <ul>
+            <li><strong>Feature work:</strong> Created balance-per-product and activity-per-tenure ratios, handled outliers, and prepared features for imbalanced churn classification.</li>
+            <li><strong>Modeling:</strong> Benchmarked Random Forest, XGBoost, and LightGBM; LightGBM reached 0.9295 accuracy and 0.8142 churn-class F1.</li>
+            <li><strong>Decision support:</strong> Applied SHAP for customer-level drivers and MAPIE conformal prediction with a 10% calibration split.</li>
+          </ul>
+          <div class="tag-row"><span class="tag">FoxAI.JSC</span><span class="tag">Tree Models</span><span class="tag">ROC-AUC</span><span class="tag">PR-AUC</span><span class="tag">MAPIE</span></div>
+          <div class="project-actions">
+            <a class="btn btn-primary" href="case-study-bank-churn.html">Case Study</a>
+            <a class="btn btn-ghost" href="https://github.com/dangssss/LaoVietBank_Churn_Clf_Demo" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card project-card reveal">
+        <div class="project-visual">
+          <table class="mock-table">
+            <tr><th>Stage</th><th>ML Task</th><th>Output</th></tr>
+            <tr><td>Records</td><td>Loaded rows</td><td><span class="score low">10,324</span></td></tr>
+            <tr><td>Classifier</td><td>Shipment Mode</td><td><span class="score mid">0.9553</span></td></tr>
+            <tr><td>Confidence</td><td>MAPIE set</td><td><span class="score high">Review</span></td></tr>
+          </table>
+        </div>
+        <div class="project-copy">
+          <h3>04 &middot; Supply Chain Shipment Type Prediction</h3>
+          <p>Scientific research project for medical supply chain logistics. My ML work focused on preparing shipment data, filling missing weight/freight fields, and predicting one of four shipment modes.</p>
+          <ul>
+            <li><strong>Data repair:</strong> Trained regression models to impute missing Weight (Kilograms) and Freight Cost (USD), making those fields usable for the downstream classifier.</li>
+            <li><strong>Shipment prediction:</strong> Built a multiclass classifier for Air, Truck, Air Charter, and Ocean; XGBoost reached 0.9553 accuracy.</li>
+            <li><strong>Uncertainty layer:</strong> Applied MAPIE conformal prediction to separate confident predictions from cases that should go to manual review.</li>
+          </ul>
+          <div class="tag-row"><span class="tag">Shipment Mode</span><span class="tag">XGBoost</span><span class="tag">LightGBM</span><span class="tag">Random Forest</span><span class="tag">MAPIE</span></div>
+          <div class="project-actions">
+            <a class="btn btn-primary" href="case-study-freight.html">Case Study</a>
+            <a class="btn btn-ghost" href="https://github.com/dangssss/Supply-Chain-Shipment-Type-Prediction" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer"><div class="container"><span>&copy; <span data-year></span> Pham Hai Dang</span><a href="contact.html">Contact</a></div></footer>
+<script src="script.js"></script>
+</body>
+</html>

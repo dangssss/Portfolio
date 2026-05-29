@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Supply chain shipment type prediction machine learning case study.">
+  <title>Supply Chain Shipment Type Prediction | Pham Hai Dang</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="header"><div class="container navbar"><a class="brand" href="index.html"><span class="logo">DS</span><span>Pham Hai Dang<small>Data Scientist</small></span></a><button class="nav-toggle" data-nav-toggle aria-expanded="false">Menu</button><nav class="nav" data-nav><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="case-study-churn.html">Churn v1</a><a href="case-study-churn-v2.html">Churn v2</a><a href="case-study-bank-churn.html">Bank Churn</a><a class="active" href="case-study-freight.html">Shipment</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav></div></header>
+
+<main>
+  <section class="container case-hero reveal">
+    <div class="breadcrumbs"><a href="projects.html">Projects</a><span>/</span><span>Supply Chain Shipment Type Prediction</span></div>
+    <p class="kicker">Case Study 04</p>
+    <h1><span class="gradient-text">Supply Chain</span> Shipment Type Prediction</h1>
+    <p class="hero-text">Medical supply chain ML case focused on predicting shipment mode. Freight and weight prediction are supporting repair steps, while the main deliverable is a multiclass shipment-mode classifier with uncertainty-aware review routing.</p>
+    <div class="hero-actions"><a class="btn btn-primary" href="https://github.com/dangssss/Supply-Chain-Shipment-Type-Prediction" target="_blank" rel="noreferrer">GitHub</a><a class="btn btn-ghost" href="projects.html">Back to Projects</a></div>
+  </section>
+
+  <section class="container section case-layout">
+    <aside class="card side-panel reveal">
+      <h3>Project Snapshot</h3>
+      <div class="kpi-list" style="margin-top:16px">
+        <div class="kpi"><span>Role</span><b>ML / Data Science</b></div>
+        <div class="kpi"><span>Records</span><b>10,324</b></div>
+        <div class="kpi"><span>Usable labels</span><b>9,964</b></div>
+        <div class="kpi"><span>Classes</span><b>4 modes</b></div>
+        <div class="kpi"><span>Repair rows</span><b>4,149</b></div>
+        <div class="kpi"><span>Best model</span><b>XGBoost</b></div>
+        <div class="kpi"><span>Accuracy</span><b>0.9553</b></div>
+      </div>
+      <div class="tag-row"><span class="tag">XGBoost</span><span class="tag">LightGBM</span><span class="tag">Random Forest</span><span class="tag">Logistic Regression</span><span class="tag">MAPIE</span></div>
+    </aside>
+
+    <div class="case-body">
+      <article class="card reveal">
+        <h2>1. Project Context</h2>
+        <p>The broader research topic is AI for healthcare supply chain decision support. My part is the ML pipeline for shipment mode prediction, not the LLM or product-interface sections of the larger project.</p>
+        <ul>
+          <li><strong>Main question:</strong> Given historical shipment fields, which shipment mode should be recommended?</li>
+          <li><strong>Target classes:</strong> Air, Truck, Air Charter, and Ocean.</li>
+          <li><strong>Boundary:</strong> Freight quote prediction is an auxiliary data-repair step, not the final case-study title.</li>
+        </ul>
+      </article>
+
+      <article class="card reveal">
+        <h2>2. Data Understanding</h2>
+        <div class="two-col">
+          <div>
+            <h3>Shipment fields</h3>
+            <ul><li>Project Code, Country, Vendor</li><li>Product Group, Molecule/Test Type</li><li>Line Item Quantity and Line Item Value</li><li>Pack Price, Unit Price, insurance cost</li></ul>
+          </div>
+          <div>
+            <h3>Operational fields</h3>
+            <ul><li>Delivery and recorded dates</li><li>Days-to-deliver derived signal</li><li>Weight (Kilograms)</li><li>Freight Cost (USD)</li></ul>
+          </div>
+        </div>
+        <p style="margin-top:16px">The notebook output shows 10,324 rows after loading and 9,964 rows after removing records without <code>Shipment Mode</code>. The remaining labels are used for supervised multiclass classification.</p>
+      </article>
+
+      <article class="card reveal">
+        <h2>3. Feature Signals</h2>
+        <p>Mutual information was used to inspect which fields carry the most information for shipment mode prediction.</p>
+        <div class="chart-card" style="margin-top:18px">
+          <div class="chart-head"><strong>Top MI Features</strong><span>shipment mode relevance</span></div>
+          <div class="bar-row"><span>PQ First Sent Date</span><div class="bar"><i style="--w:100%"></i></div><b>0.610</b></div>
+          <div class="bar-row"><span>Project Code</span><div class="bar"><i style="--w:90%"></i></div><b>0.547</b></div>
+          <div class="bar-row"><span>DaysToDeliver</span><div class="bar"><i style="--w:85%"></i></div><b>0.519</b></div>
+          <div class="bar-row"><span>Country</span><div class="bar"><i style="--w:63%"></i></div><b>0.386</b></div>
+          <div class="bar-row"><span>Pack Price</span><div class="bar"><i style="--w:59%"></i></div><b>0.359</b></div>
+          <div class="bar-row"><span>Vendor</span><div class="bar"><i style="--w:52%"></i></div><b>0.316</b></div>
+        </div>
+      </article>
+
+      <article class="card reveal">
+        <h2>4. ML Pipeline</h2>
+        <div class="pipeline">
+          <div class="pipeline-step"><span>01</span><b>Clean</b><small>Normalize mixed numeric, date, and categorical fields.</small></div>
+          <div class="pipeline-step"><span>02</span><b>Repair</b><small>Predict missing Weight and Freight Cost values.</small></div>
+          <div class="pipeline-step"><span>03</span><b>Encode</b><small>Prepare country, vendor, project, and product features.</small></div>
+          <div class="pipeline-step"><span>04</span><b>Classify</b><small>Train multiclass Shipment Mode models.</small></div>
+          <div class="pipeline-step"><span>05</span><b>Review</b><small>Route uncertain cases with MAPIE prediction sets.</small></div>
+        </div>
+      </article>
+
+      <article class="card reveal">
+        <h2>5. Data Repair Step</h2>
+        <p>Weight and freight fields are not the final target, but they are important downstream predictors. I treated this as a separate supervised repair problem before shipment-mode classification.</p>
+        <div class="stat-grid" style="margin-top:18px">
+          <div class="stat"><span>Missing weight</span><b>3,952</b><em>numeric conversion</em></div>
+          <div class="stat"><span>Missing freight</span><b>4,126</b><em>numeric conversion</em></div>
+          <div class="stat"><span>Rows to fill</span><b>4,149</b><em>either target missing</em></div>
+          <div class="stat"><span>After repair</span><b>0</b><em>missing left</em></div>
+        </div>
+        <div class="two-col" style="margin-top:18px">
+          <div class="chart-card">
+            <div class="chart-head"><strong>Repair Model</strong><span>XGBoost regression</span></div>
+            <div class="bar-row"><span>Train rows</span><div class="bar"><i style="--w:80%"></i></div><b>3,893</b></div>
+            <div class="bar-row"><span>Test rows</span><div class="bar"><i style="--w:25%"></i></div><b>974</b></div>
+            <div class="bar-row"><span>Targets</span><div class="bar"><i style="--w:60%"></i></div><b>2</b></div>
+            <div class="bar-row"><span>Features</span><div class="bar"><i style="--w:70%"></i></div><b>10</b></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><strong>Repair Metrics</strong><span>original scale</span></div>
+            <div class="bar-row"><span>R2</span><div class="bar"><i style="--w:97%"></i></div><b>0.971</b></div>
+            <div class="bar-row"><span>MAE</span><div class="bar"><i style="--w:42%"></i></div><b>157.5</b></div>
+            <div class="bar-row"><span>RMSE</span><div class="bar"><i style="--w:68%"></i></div><b>821.3</b></div>
+            <div class="bar-row"><span>Train RMSE</span><div class="bar"><i style="--w:21%"></i></div><b>0.207</b></div>
+          </div>
+        </div>
+        <ul>
+          <li>Converted <code>Weight (Kilograms)</code> and <code>Freight Cost (USD)</code> to numeric, then log-transformed targets with <code>log1p</code>.</li>
+          <li>Used RobustScaler for commercial numeric fields and added interaction features such as <code>Weight_Quantity</code>, <code>Weight_Price</code>, and <code>Freight_Quantity</code>.</li>
+          <li>Saved the XGBoost repair model, predicted missing rows, inverse-transformed predictions, and used the filled dataset for the final classifier.</li>
+        </ul>
+      </article>
+
+      <article class="card reveal">
+        <h2>6. Shipment Mode Classifier</h2>
+        <p>The final classifier used a stratified train/calibration/test design. The notebook output shows XGBoost as the strongest model, narrowly ahead of LightGBM.</p>
+        <table class="mock-table">
+          <tr><th>Model</th><th>Accuracy</th><th>Macro F1</th><th>Weighted F1</th></tr>
+          <tr><td>Logistic Regression</td><td>0.5595</td><td>-</td><td>-</td></tr>
+          <tr><td>Random Forest</td><td>0.9478</td><td>0.9288</td><td>-</td></tr>
+          <tr><td>LightGBM</td><td>0.9538</td><td>0.9461</td><td>0.9539</td></tr>
+          <tr><td>XGBoost</td><td><span class="score low">0.9553</span></td><td>0.9464</td><td>0.9554</td></tr>
+        </table>
+      </article>
+
+      <article class="card reveal">
+        <h2>7. MAPIE Review Gate</h2>
+        <p>MAPIE is added on top of XGBoost with <code>alpha = 0.05</code>. The result is a prediction set that supports operational routing: auto-recommend clear cases and send ambiguous shipments to manual review.</p>
+        <table class="mock-table">
+          <tr><th>Prediction set</th><th>Interpretation</th><th>Decision</th></tr>
+          <tr><td><span class="score low">One mode</span></td><td>High confidence</td><td>Auto recommend</td></tr>
+          <tr><td><span class="score mid">Two+ modes</span></td><td>Ambiguous logistics choice</td><td>Manual review</td></tr>
+          <tr><td><span class="score high">Wide set</span></td><td>Unstable recommendation</td><td>Escalate</td></tr>
+        </table>
+      </article>
+
+      <article class="card reveal">
+        <h2>8. Case Study Positioning</h2>
+        <p>This page should present the project as shipment mode decision support. The strongest story is: repair incomplete operational data, train a strong multiclass model, and expose uncertainty so the system knows when not to over-automate.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer"><div class="container"><span>&copy; <span data-year></span> Pham Hai Dang</span><a href="contact.html">Contact</a></div></footer>
+<script src="script.js"></script>
+</body>
+</html>
